@@ -17,5 +17,6 @@ public class GameStateResponse {
     private int totalScore;
     private Map<String, Integer> scorecard;
     private List<String> availableCategories;
+    private List<PossibleScore> possibleScores;
 
 }

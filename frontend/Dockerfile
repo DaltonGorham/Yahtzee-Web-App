@@ -1,4 +1,4 @@
-FROM node:19-alpine
+FROM node:20-alpine
 
 # Set VITE env var dynamically
 ARG api_base_url

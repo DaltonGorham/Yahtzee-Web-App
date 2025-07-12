@@ -1,13 +1,11 @@
 package com.yahtzee.model;
 
 import com.yahtzee.YahtzeeScorer;
+import com.yahtzee.dto.response.PossibleScore;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -89,6 +87,40 @@ public class GameState {
             }
         }
         return totalScore;
+    }
+
+    public List<PossibleScore> getPossibleScores() {
+        List<PossibleScore> possibleScores = new ArrayList<>();
+
+        // Define all categories with their display names and internal keys
+        Map<String, String> categories = new HashMap<>();
+        categories.put("Ones", "ones");
+        categories.put("Twos", "twos");
+        categories.put("Threes", "threes");
+        categories.put("Fours", "fours");
+        categories.put("Fives", "fives");
+        categories.put("Sixes", "sixes");
+        categories.put("Three of a kind", "three-of-a-kind");
+        categories.put("Four of a kind", "four-of-a-kind");
+        categories.put("Full house", "full-house");
+        categories.put("Small straight", "small-straight");
+        categories.put("Large straight", "large-straight");
+        categories.put("Yahtzee", "yahtzee");
+        categories.put("Chance", "chance");
+
+        for (Map.Entry<String, String> entry : categories.entrySet()) {
+            String displayName = entry.getKey();
+            String internalKey = entry.getValue();
+
+            Integer score = scorer.calculateScore(hand, internalKey);
+            boolean available = scorecard.containsKey(internalKey) && scorecard.get(internalKey) == -1;
+            PossibleScore possibleScore = new PossibleScore();
+            possibleScore.setCategory(displayName);
+            possibleScore.setScore(score);
+            possibleScore.setAvailable(available);
+            possibleScores.add(possibleScore);
+        }
+        return possibleScores;
     }
 
     public boolean scoreCategory(String category) {

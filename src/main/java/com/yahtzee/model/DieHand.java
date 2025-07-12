@@ -4,31 +4,33 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DieHand {
-    private List<Die> dice = new ArrayList<>();
-    private Integer numberOfDice;
-    private Map<Integer, Integer> valueCounts = new HashMap<>();
+    private final List<Die> dice = new ArrayList<>();
+    private final Integer numberOfDice;
+    private Map<Integer, Integer> valueCountsSnapshot = new HashMap<>();
 
     public DieHand(Integer numberOfDice) {
         this.numberOfDice = numberOfDice;
-
         for (int i = 0; i < numberOfDice; i++) {
             dice.add(new Die(6));
         }
-
     }
 
-    public void updateCounts() {
-        valueCounts.clear();
+    // Create a new map every time counts are updated
+    private void updateCounts() {
+        Map<Integer, Integer> newCounts = new HashMap<>();
         for (int i = 0; i < numberOfDice; i++) {
             int faceValue = dice.get(i).getFaceValue();
-            valueCounts.put(faceValue, valueCounts.getOrDefault(faceValue, 0) + 1);
+            newCounts.put(faceValue, newCounts.getOrDefault(faceValue, 0) + 1);
         }
+        // Assign the new map to the snapshot
+        valueCountsSnapshot = newCounts;
     }
 
+    // Always return a fresh snapshot of counts
     public Map<Integer, Integer> getCounts() {
-        return valueCounts;
+        updateCounts(); // Recalculate counts
+        return Map.copyOf(valueCountsSnapshot); // Return an unmodifiable copy
     }
-
 
     public void rollAll() {
         for (int i = 0; i < numberOfDice; i++) {
@@ -41,7 +43,6 @@ public class DieHand {
         if (index >= 0 && index < numberOfDice) {
             dice.get(index).roll();
         }
-        updateCounts();
     }
 
     public void rerollDiceIndices(List<Integer> indices) {
@@ -60,7 +61,7 @@ public class DieHand {
     }
 
     public boolean hasThreeOfAKind() {
-        for (Map.Entry<Integer, Integer> entry : valueCounts.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : valueCountsSnapshot.entrySet()) {
             if (entry.getValue() == 3) {
                 return true;
             }
@@ -69,7 +70,7 @@ public class DieHand {
     }
 
     public boolean hasFourOfAKind() {
-        for (Map.Entry<Integer, Integer> entry : valueCounts.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : valueCountsSnapshot.entrySet()) {
             if (entry.getValue() == 4) {
                 return true;
             }
@@ -78,12 +79,10 @@ public class DieHand {
     }
 
     public boolean hasSmallStraight() {
-        // Use set to take out duplicates
         Set<Integer> uniqueValues = dice.stream()
                 .map(Die::getFaceValue)
                 .collect(Collectors.toSet());
 
-        // Check for 4 consecutive numbers
         for (int start = 1; start <= 3; start++) {
             if (uniqueValues.containsAll(List.of(start, start + 1, start + 2, start + 3))) {
                 return true;
@@ -93,7 +92,6 @@ public class DieHand {
     }
 
     public boolean hasLargeStraight() {
-        // Use set to take out duplicates
         Set<Integer> uniqueValues = dice.stream()
                 .map(Die::getFaceValue)
                 .collect(Collectors.toSet());
@@ -108,11 +106,10 @@ public class DieHand {
     public boolean hasFullHouse() {
         boolean hasThreeOfAKind = false;
         boolean hasPair = false;
-        for (Map.Entry<Integer, Integer> entry : valueCounts.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : valueCountsSnapshot.entrySet()) {
             if (entry.getValue() == 3) {
                 hasThreeOfAKind = true;
-            }
-            else if (entry.getValue() == 4) {
+            } else if (entry.getValue() == 2) {
                 hasPair = true;
             }
         }
@@ -120,7 +117,7 @@ public class DieHand {
     }
 
     public boolean hasYahtzee() {
-        for (Map.Entry<Integer, Integer> entry : valueCounts.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : valueCountsSnapshot.entrySet()) {
             if (entry.getValue() == 5) {
                 return true;
             }
@@ -131,13 +128,12 @@ public class DieHand {
     public String getBestCombination() {
         if (hasYahtzee()) return "yahtzee";
         if (hasLargeStraight()) return "large-straight";
+        if (hasFullHouse()) return "full-house";
         if (hasSmallStraight()) return "small-straight";
         if (hasFourOfAKind()) return "four-of-a-kind";
         if (hasThreeOfAKind()) return "three-of-a-kind";
         return "chance";
     }
-
-
 
     public Integer calculateChance() {
         int sum = 0;
@@ -146,6 +142,4 @@ public class DieHand {
         }
         return sum;
     }
-
-
 }

@@ -1,10 +1,13 @@
 package com.yahtzee;
 
 import com.yahtzee.dto.response.GameStateResponse;
+import com.yahtzee.dto.response.PossibleScore;
 import com.yahtzee.model.GameState;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class YahtzeeService {
@@ -22,8 +25,19 @@ public class YahtzeeService {
         response.setCombination(gameState.getHand().getBestCombination());
         response.setGameActive(gameState.isGameActive());
         response.setTotalScore(gameState.calculateTotalScore());
+
+        List<String> availableCategories = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : gameState.getScorecard().entrySet()) {
+            if (entry.getValue() == -1) { // Not used yet
+                availableCategories.add(entry.getKey());
+            }
+        }
+        response.setAvailableCategories(availableCategories);
+        response.setPossibleScores(gameState.getPossibleScores());
+
         return response;
     }
+
 
     public GameStateResponse startNewGame() {
         gameState.newGame();
