@@ -15,6 +15,7 @@ public class Die {
 
     public Die(Integer numberOfSides) {
         this.numberOfSides = numberOfSides;
+        roll();
     }
 
     public void roll() {
