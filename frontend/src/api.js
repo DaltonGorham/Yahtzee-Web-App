@@ -19,3 +19,18 @@ export async function reroll(indices) {
     });
     return await res.json();
 }
+
+export async function chooseScore() {
+    const res = await fetch(`${BASE_URL}/choose-score`, { method: 'POST' });
+    return await res.json();
+}
+
+export async function score(category) {
+    const res = await fetch(`${BASE_URL}/score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category })
+    });
+
+    return await res.json();
+}

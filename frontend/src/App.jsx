@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import './App.css'
-import Die from './components/dice/Die.jsx';
+import GameBoard from "./components/game/GameBoard.jsx";
 
 function App() {
   return (
-      <div>
-          <Die />
+      <div className="App">
+          <GameBoard />
       </div>
   );
 }

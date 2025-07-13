@@ -1,0 +1,45 @@
+.die {
+    width: 64px;
+    height: 64px;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+    padding: 6px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.die.held {
+    border-color: #2196f3;
+    background-color: #e3f2fd;
+}
+
+.die.rolling {
+    animation: roll 0.8s ease;
+}
+
+.die.landing {
+    transform: scale(1.1);
+}
+
+@keyframes roll {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.die-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #333;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.die-dot.visible {
+    opacity: 1;
+}

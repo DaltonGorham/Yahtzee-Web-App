@@ -23,5 +23,5 @@ POST http://localhost:8080/api/v1/yahtzee/score
 Content-Type: application/json
 
 {
-    "category": "large-straight"
+    "category": "chance"
 }

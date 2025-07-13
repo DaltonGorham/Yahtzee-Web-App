@@ -1,0 +1,17 @@
+/* ===========================================
+   APP COMPONENT STYLES
+   =========================================== */
+.App {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .App {
+        padding: 10px;
+    }
+}

@@ -1,0 +1,16 @@
+.dice-tray-container {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.dice-tray {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.dice-tray.rolling {
+    pointer-events: none;
+    opacity: 0.7;
+}

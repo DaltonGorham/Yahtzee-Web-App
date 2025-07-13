@@ -1,68 +1,64 @@
-import { useEffect, useState } from 'react'
-import { startNewGame, rollAll, reroll} from "../../api.js";
+import React, { useState, useEffect } from 'react';
+import './Die.css';
 
+const Die = ({ value, isHeld, onClick, isRolling = false }) => {
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [isLanding, setIsLanding] = useState(false);
 
-export default function Die() {
-    const [gameState, setGameState] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedIndices, setSelectedIndices] = useState([]);
-
-
-    useEffect(() => {
-        startNewGame().then(setGameState).finally(() => setLoading(false))
-    }, []);
-
-    const handleRollAll = () => {
-        rollAll().then(setGameState);
-    }
-
-    const handleReroll = () => {
-        if (selectedIndices.length === 0) return;
-
-        reroll(selectedIndices)
-            .then(data => {
-                setGameState(data);
-                setSelectedIndices([]);
-            })
-            .catch(error => {
-                console.error("Reroll failed:", error);
-                alert("Reroll failed. Please try again.");
-            });
+    const getDotPattern = (value) => {
+        const patterns = {
+            1: [4], // center dot
+            2: [0, 8], // top-left, bottom-right
+            3: [0, 4, 8], // top-left, center, bottom-right
+            4: [0, 2, 6, 8], // corners
+            5: [0, 2, 4, 6, 8], // corners + center
+            6: [0, 2, 3, 5, 6, 8] // two columns
+        };
+        return patterns[value] || [];
     };
 
-    if (loading || !gameState) {
-        return <div>Loading...</div>;
-    }
+    useEffect(() => {
+        if (isRolling) {
+            setIsAnimating(true);
+            setIsLanding(false);
+
+            // Stop rolling animation after duration
+            const rollTimer = setTimeout(() => {
+                setIsAnimating(false);
+                setIsLanding(true);
+
+                // Stop landing animation
+                const landTimer = setTimeout(() => {
+                    setIsLanding(false);
+                }, 400);
+
+                return () => clearTimeout(landTimer);
+            }, 800);
+
+            return () => clearTimeout(rollTimer);
+        }
+    }, [isRolling]);
+
+    const dieClasses = [
+        'die',
+        isHeld ? 'held' : '',
+        isAnimating ? 'rolling' : '',
+        isLanding ? 'landing' : ''
+    ].filter(Boolean).join(' ');
 
     return (
-        <div>
-            <h1>Yahtzee!</h1>
-            <div>
-                {gameState?.dice?.map((val, idx) => (
-                    <button
-                        key={idx}
-                        style={{
-                            margin: '10px',
-                            fontSize: '2rem',
-                            backgroundColor: selectedIndices.includes(idx) ? 'lightgreen' : 'blue'
-                        }}
-                        onClick={() => {
-                            setSelectedIndices(prev =>
-                                prev.includes(idx)
-                                    ? prev.filter(i => i !== idx)
-                                    : [...prev, idx]
-                            );
-                        }}
-                    >
-                        {val}
-                    </button>
-                ))}
-            </div>
-            {gameState?.rollsRemaining ? '' : <p>Game Over!</p>}
-            <p>Combination: {gameState?.combination || 'Loading...'}</p>
-            <p>Rolls Remaining: {gameState?.rollsRemaining ?? 'Loading...'}</p>
-            <button onClick={handleRollAll} disabled={!gameState}>Roll All</button>
-            <button onClick={handleReroll} disabled={!gameState}>Re-Roll</button>
+        <div
+            className={dieClasses}
+            onClick={!isAnimating ? onClick : undefined} // Disable clicking during animation
+        >
+            {Array.from({ length: 9 }, (_, index) => (
+                <div
+                    key={index}
+                    className={`die-dot ${getDotPattern(value).includes(index) ? 'visible' : 'hidden'}`}
+                />
+            ))}
         </div>
     );
-}
+};
+
+export default Die;
